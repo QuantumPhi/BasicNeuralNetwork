@@ -1,16 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BasicNeuralNetwork
 {
-    delegate void Print(int i);
     class Program
     {
         static void Main(string[] args)
         {
+            double[][] input = new double[][]
+            {
+                new double[]{1,1,0,1,1,0,1,0,1},
+                new double[]{0,0,1,0,1,1,1,1,1},
+            };
+
+            double[] output = new double[] { 1, 0 };
+
+            PerceptronNetwork network = new PerceptronNetwork(input[0].Length);
+            PerceptronTeacher teacher = new PerceptronTeacher(network, 0.05D);
+
+            for (int x = 0; x < 1000; x++)
+            {
+                for (int i = 0; i < output.Length; i++)
+                {
+                    double error = teacher.Teach(input[i], output[i]);
+                    Console.WriteLine(error);
+                }
+            }
+
+            Console.ReadLine();
         }
     }
 
@@ -18,25 +39,31 @@ namespace BasicNeuralNetwork
     {
         public readonly int Inputs;
 
-        double[] weights;
+        public double[] Weights { get; set; }
+
+        private Random random = new Random();
 
         public double this[int index]
         {
-            get { return weights[index]; }
-            set { weights[index] = value; }
+            get { return Weights[index]; }
+            set { Weights[index] = value; }
         }
-        public PerceptronNetwork(int size)
+        public PerceptronNetwork(int inputs)
         {
-            weights = new double[size];
-            Inputs = size;
+            Weights = Enumerable
+                .Range(0, inputs)
+                .Select(x => random.NextDouble() * 2 - 1)
+                .ToArray();
+            Inputs = inputs;
         }
 
         public double Run(double[] input)
         {
+            Trace.Assert(Weights.Length == input.Length);
+
             double data = Enumerable
-                .Range(0, weights.Length)
-                .AsParallel()
-                .Select(x => weights[x] * input[x])
+                .Range(0, Weights.Length)
+                .Select(x => Weights[x] * input[x])
                 .Sum();
 
             return data > 0 ? 1 : 0;
@@ -47,7 +74,7 @@ namespace BasicNeuralNetwork
     {
         public PerceptronNetwork Network { get; private set; }
 
-        double Alpha { get; private set; }
+        public double Alpha { get; private set; }
 
         public PerceptronTeacher(PerceptronNetwork network, double alpha)
         {
