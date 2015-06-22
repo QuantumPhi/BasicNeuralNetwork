@@ -15,9 +15,12 @@ namespace BasicNeuralNetwork
             {
                 new double[]{1,1,0,1,1,0,1,0,1},
                 new double[]{0,0,1,0,1,1,1,1,1},
+                new double[]{0,1,0,1,0,1,1,0,0},
+                new double[]{0,1,1,0,1,0,1,0,1},
+                new double[]{1,1,0,1,0,0,1,1,0}
             };
 
-            double[] output = new double[] { 1, 0 };
+            double[] output = new double[] { 1, 0, 1 };
 
             PerceptronNetwork network = new PerceptronNetwork(input[0].Length);
             PerceptronTeacher teacher = new PerceptronTeacher(network, 0.05D);
